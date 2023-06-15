@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="style.css">
+      <script src="/tmap사용/jquery-3.6.4.min.js"></script>
+
+      <title>Lotto</title>
+      <style>
+          #get-numbers-button-open {
+		font-weight:bold;
+		font-size:22px;
+		padding:10px;
+		background:black;
+		color:white;
+	}
+	
+	#numbers-display {
+		margin-top:20px;
+	}
+	
+	.lotto-ball
+	{
+		border:1px solid black;
+		border-radius:50%;
+		background:radial-gradient(yellow,orange);
+		font-size:22px;
+		font-weight:bold;
+		color:red;
+		width:30px;
+		height:30px;
+		margin-right:5px;
+		margin-bottom:5px;
+		float:left;
+		padding:10px;
+	}
+	
+	.power-ball
+	{
+        background:radial-gradient(red,yellow);
+        color:white;
+	}
+	
+	.hidden-ball, .hidden-combination
+	{
+		display:none;
+	}
+	
+	.clear
+	{
+		clear:both;
+	}
+      </style>
+  </head>
+  <body>
+      <h3>로또 번호 생성기</h3>
+      <input id="get-numbers-button-open" type="button" value="번호 생성" />
+      &nbsp;&nbsp;<b>생성할 게임 수:</b>&nbsp;<input id="combinations" type="text" value="5" size="2" />
+      <br />
+      <b>선택한 숫자:</b>&nbsp;<input id="selected-numbers" type="text" />
+
+      <div id="numbers-display"></div>
+
+      <script src="jquery-2.1.4.min.js"></script>
+      <script>
+        $(document).ready(function(){
+          var maxNumber = 45;
+          var ballsNumber = 5;
+          var maxPowerballNumber = 45;
+          var enableAnimation = true;
+          var delay = 100;
+          var enableSound = true;
+          
+          $("#get-numbers-button-open").click(function(){
+            $("#numbers-display").html("");
+            
+            if(enableSound)
+              playSound();
+
+            var selectedNumbers = $("#selected-numbers").val().split(",");
+            
+            for(var z = 1; z <= $("#combinations").val(); z++) {
+              var numbers = [];
+
+              for (var i = 0; i < ballsNumber; i++) {
+                if (selectedNumbers.length > i) {
+                  numbers.push(parseInt(selectedNumbers[i]));
+                } else {
+                  var number = Math.floor(Math.random() * maxNumber) + 1;
+                  var found = false;
+                  for (var j = 0; j < numbers.length; j++) {
+                    if (numbers[j] == number)
+                      found = true;
+                  }
+                  if (!found)
+                    numbers.push(number);
+                  else
+                    i--;
+                }
+              }
+
+              numbers.sort(function sortNumber(a,b){
+                return a - b;
+              });
+
+              var powerBall = Math.floor(Math.random() * maxPowerballNumber) + 1;
+
+              if(enableAnimation) {
+                $("#numbers-display").append('<b class="hidden-combination" id="combination' + z + '">' + z + '</b>');
+                
+                $.each(numbers, function (index, value) {
+                  $("#numbers-display").append('<div class="lotto-ball hidden-ball">' + value + '</div>');
+                });
+
+                if(maxPowerballNumber)
+                  $("#numbers-display").append('<div class="lotto-ball power-ball hidden-ball">' + powerBall + '</div>');
+
+                $(".hidden-ball").each(function (index, value) {
+                  $(this).delay(delay * index).fadeIn();
+                });
+
+                $("#combination" + z).delay(delay * ballsNumber * z).fadeIn();
+              } else {
+                $("#numbers-display").append('<b>' + z + '</b>');
+                
+                $.each(numbers, function (index, value) {
+                  $("#numbers-display").append('<div class="lotto-ball">' + value + '</div>');
+                });
+                
+                if(maxPowerballNumber)
+                  $("#numbers-display").append('<div class="lotto-ball power-ball">' + powerBall + '</div>');
+              }
+              
+              $("#numbers-display").append('<div class="clear"></div>');
+            }
+          });
+          
+          function playSound() {
+            var blop_audio = document.createElement("audio");
+            blop_audio.setAttribute("src", "magic.mp3");
+            blop_audio.play();    
+          }
+        });
+      </script>
+  </body>
+</html>
